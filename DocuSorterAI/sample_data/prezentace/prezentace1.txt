@@ -1,0 +1,31 @@
+PREZENTACE PROJEKTU NOVÉHO WEBU
+
+Úvod:
+- Představení projektu
+- Cíle a očekávání
+- Časový harmonogram
+
+Analýza požadavků:
+- Funkční požadavky
+- Technické požadavky
+- Uživatelské požadavky
+
+Návrh řešení:
+- Architektura systému
+- Technologie
+- Uživatelské rozhraní
+
+Implementace:
+- Vývojové prostředí
+- Testování
+- Nasazení
+
+Závěr:
+- Shrnutí
+- Další kroky
+- Otázky a odpovědi
+
+Přílohy:
+- Technická specifikace
+- Wireframy
+- Mockupy

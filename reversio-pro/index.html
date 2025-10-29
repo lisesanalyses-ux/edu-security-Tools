@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Reversio Pro - Portable Reverse Engineering Toolkit</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVERSIO PRO</h1>
+            <p>Portable Reverse Engineering Toolkit</p>
+            <div class="status-bar">
+                <span id="battery">Battery: 85%</span>
+                <span id="network">Network: Isolated</span>
+                <span id="time">Time: 14:23</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="dashboard">
+                <h2>Module Selection</h2>
+                <div class="modules-grid">
+                    <div class="module-card" data-module="decompiler">
+                        <h3>DECOMPILER-lite</h3>
+                        <p>Firmware Analysis & Decompilation</p>
+                        <button class="launch-btn">Launch</button>
+                    </div>
+                    <div class="module-card" data-module="proto-capture">
+                        <h3>PROTO-CAPTURE</h3>
+                        <p>Protocol Analysis & Capture</p>
+                        <button class="launch-btn">Launch</button>
+                    </div>
+                    <div class="module-card" data-module="flash-toolkit">
+                        <h3>FLASH-TOOLKIT</h3>
+                        <p>Flash Memory Programming</p>
+                        <button class="launch-btn">Launch</button>
+                    </div>
+                    <div class="module-card" data-module="debug-run">
+                        <h3>DEBUG-RUN</h3>
+                        <p>Sandbox Debugging Environment</p>
+                        <button class="launch-btn">Launch</button>
+                    </div>
+                    <div class="module-card" data-module="power-audit">
+                        <h3>POWER-AUDIT</h3>
+                        <p>Power Consumption Analysis</p>
+                        <button class="launch-btn">Launch</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="module-content" class="module-content hidden">
+                <!-- Module content will be loaded here -->
+            </div>
+        </main>
+
+        <footer>
+            <p>Reversio Pro v1.0 - Standalone Operation</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

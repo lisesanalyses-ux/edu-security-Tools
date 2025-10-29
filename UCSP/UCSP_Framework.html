@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Cyber Security Platform (UCSP) - Management Framework</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+        .tool-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+        .tool-card h3 {
+            margin-top: 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: white;
+        }
+        .status.active { background-color: green; }
+        .status.inactive { background-color: red; }
+        .status.warning { background-color: orange; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .dashboard-item {
+            flex: 1 1 300px;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .correlation-alert {
+            background-color: #ffeaa7;
+            border-left: 5px solid #d63031;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .settings-form label {
+            margin: 0.5rem 0 0.2rem 0;
+        }
+        .settings-form input, .settings-form select {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Unified Cyber Security Platform (UCSP)</h1>
+        <p>Integrated Management Framework for KSP and WSA Tools</p>
+    </header>
+    <nav>
+        <a href="#overview">Overview</a>
+        <a href="#ksp">KSP Management</a>
+        <a href="#wsa">WSA Management</a>
+        <a href="#correlation">Correlation Dashboard</a>
+        <a href="#settings">Settings</a>
+    </nav>
+    <div class="container">
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            <p>Welcome to the UCSP Management Framework. This platform integrates KSP (Kyberstráž Procesů) for Endpoint Detection & Response and WSA (Windows Security Auditor) for Configuration Audit & Remediation. Monitor, correlate, and visualize security data in real-time.</p>
+            <div class="dashboard">
+                <div class="dashboard-item">
+                    <h3>Total Endpoints</h3>
+                    <p id="total-endpoints">Loading...</p>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Active Alerts</h3>
+                    <p id="active-alerts">Loading...</p>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Risk Score Average</h3>
+                    <p id="risk-average">Loading...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ksp" class="section">
+            <h2>KSP (Kyberstráž Procesů) - Endpoint Detection & Response</h2>
+            <div class="tool-card">
+                <h3>Agent Status</h3>
+                <p>Status: <span class="status active">Active</span></p>
+                <p>Last Update: <span id="ksp-last-update">2023-10-01 12:00:00</span></p>
+                <button onclick="refreshKSP()">Refresh Data</button>
+            </div>
+            <div class="tool-card">
+                <h3>Recent Events</h3>
+                <ul id="ksp-events">
+                    <li>Process anomaly detected (PID: 1234, Score: 85) - Endpoint WS001</li>
+                    <li>Network connection to suspicious IP - Endpoint WS002</li>
+                </ul>
+                <button onclick="trainModels()">Train Behavioral Models</button>
+            </div>
+            <div class="tool-card">
+                <h3>Feedback System</h3>
+                <p>Mark events as Legitimate or Attack to improve models.</p>
+                <button onclick="submitFeedback('legitimate')">Mark as Legitimate</button>
+                <button onclick="submitFeedback('attack')">Mark as Attack</button>
+            </div>
+        </section>
+
+        <section id="wsa" class="section">
+            <h2>WSA (Windows Security Auditor) - Configuration Audit & Remediation</h2>
+            <div class="tool-card">
+                <h3>Audit Status</h3>
+                <p>Status: <span class="status active">Active</span></p>
+                <p>Last Audit: <span id="wsa-last-audit">2023-10-01 11:30:00</span></p>
+                <button onclick="runAudit()">Run Full Audit</button>
+            </div>
+            <div class="tool-card">
+                <h3>Configuration Risks</h3>
+                <ul id="wsa-risks">
+                    <li>Weak password policy on Endpoint WS001 (Score: 80)</li>
+                    <li>UAC disabled on Endpoint WS003 (Score: 70)</li>
+                </ul>
+                <button onclick="calculateRisk()">Recalculate Risk Scores</button>
+            </div>
+            <div class="tool-card">
+                <h3>One-Click Remediation</h3>
+                <p>Select an endpoint and apply fixes.</p>
+                <select id="endpoint-select">
+                    <option>WS001</option>
+                    <option>WS002</option>
+                    <option>WS003</option>
+                </select>
+                <button onclick="remediate()">Remediate Selected Endpoint</button>
+            </div>
+        </section>
+
+        <section id="correlation" class="section">
+            <h2>Correlation Dashboard</h2>
+            <p>Correlated incidents from KSP and WSA data.</p>
+            <div class="correlation-alert">
+                <h3>Critical Incident: Potential Account Compromise</h3>
+                <p><strong>WSA Detection:</strong> Weak password policy on Endpoint WS001.</p>
+                <p><strong>KSP Detection:</strong> Unusual process activity (PID: 5678, Anomaly Score: 90).</p>
+                <p><strong>Correlation:</strong> Combined risk score: 85. Recommended action: Investigate and remediate.</p>
+                <button onclick="investigateIncident()">Investigate</button>
+            </div>
+            <div class="tool-card">
+                <h3>Endpoint Risk Map</h3>
+                <p>Interactive map showing correlated risks across endpoints. Hover over points for details, click to investigate.</p>
+                <div id="endpoint-map" style="height: 400px; width: 100%; border: 1px solid #ddd;"></div>
+            </div>
+        </section>
+
+        <section id="settings" class="section">
+            <h2>Settings</h2>
+            <div class="tool-card">
+                <h3>Framework Configuration</h3>
+                <p>Configure data sources, alert thresholds, and user roles.</p>
+                <button onclick="openSettings()">Open Settings</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>Framework Configuration</h2>
+            <form class="settings-form" onsubmit="saveSettings(event)">
+                <label for="data-source">Data Source URL:</label>
+                <input type="url" id="data-source" value="https://api.ucsp.example.com" required>
+
+                <label for="alert-threshold">Alert Threshold (Risk Score):</label>
+                <input type="number" id="alert-threshold" min="0" max="100" value="70" required>
+
+                <label for="user-role">User Role:</label>
+                <select id="user-role">
+                    <option value="admin">Administrator</option>
+                    <option value="analyst">Security Analyst</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+
+                <label for="notification-email">Notification Email:</label>
+                <input type="email" id="notification-email" value="admin@company.com" required>
+
+                <button type="submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simulated data updates
+        function refreshKSP() {
+            document.getElementById('ksp-last-update').textContent = new Date().toLocaleString();
+            alert('KSP data refreshed.');
+        }
+
+        function trainModels() {
+            alert('Behavioral models training initiated.');
+        }
+
+        function submitFeedback(type) {
+            alert(`Feedback submitted: ${type}`);
+        }
+
+        function runAudit() {
+            document.getElementById('wsa-last-audit').textContent = new Date().toLocaleString();
+            alert('WSA audit completed.');
+        }
+
+        function calculateRisk() {
+            alert('Risk scores recalculated.');
+        }
+
+        function remediate() {
+            const endpointId = document.getElementById('endpoint-select').value;
+            const endpoint = endpoints.find(e => e.id === endpointId);
+            if (endpoint) {
+                // Simulate remediation: reduce risk score
+                endpoint.risk = Math.max(0, endpoint.risk - 20);
+                if (endpoint.risk < 40) {
+                    endpoint.color = 'green';
+                    endpoint.details = 'Low risk: Remediation applied';
+                } else if (endpoint.risk < 70) {
+                    endpoint.color = 'orange';
+                    endpoint.details = 'Medium risk: Remediation applied';
+                } else {
+                    endpoint.color = 'red';
+                    endpoint.details = 'High risk: Remediation applied';
+                }
+                drawMap(); // Redraw the map with updated data
+                alert(`Remediation applied to ${endpointId}. Risk score reduced to ${endpoint.risk}.`);
+            } else {
+                alert('Endpoint not found.');
+            }
+        }
+
+        function investigateIncident() {
+            // Simulate investigation: mark as investigated
+            const alertDiv = document.querySelector('.correlation-alert');
+            alertDiv.style.backgroundColor = '#d4edda'; // Green background to indicate resolved
+            alertDiv.innerHTML += '<p><strong>Status:</strong> Investigated and resolved.</p>';
+            alert('Incident investigation completed. Alert marked as resolved.');
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').style.display = 'block';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+            const dataSource = document.getElementById('data-source').value;
+            const threshold = document.getElementById('alert-threshold').value;
+            const role = document.getElementById('user-role').value;
+            const email = document.getElementById('notification-email').value;
+            // Simulate saving, e.g., to localStorage or alert
+            localStorage.setItem('ucsp-data-source', dataSource);
+            localStorage.setItem('ucsp-threshold', threshold);
+            localStorage.setItem('ucsp-role', role);
+            localStorage.setItem('ucsp-email', email);
+            alert('Settings saved successfully!');
+            closeSettings();
+        }
+
+        // Endpoint Risk Map Data
+        const endpoints = [
+            { id: 'WS001', x: 100, y: 100, risk: 85, color: 'red', details: 'High risk: Weak password + Anomaly detected' },
+            { id: 'WS002', x: 200, y: 150, risk: 60, color: 'orange', details: 'Medium risk: UAC disabled' },
+            { id: 'WS003', x: 300, y: 200, risk: 30, color: 'green', details: 'Low risk: Compliant config' },
+            { id: 'WS004', x: 150, y: 250, risk: 90, color: 'red', details: 'High risk: Multiple anomalies' }
+        ];
+
+        // Load initial data and draw map
+        window.onload = function() {
+            document.getElementById('total-endpoints').textContent = '150';
+            document.getElementById('active-alerts').textContent = '12';
+            document.getElementById('risk-average').textContent = '65';
+
+            drawMap();
+        };
+
+        function drawMap() {
+            const mapDiv = document.getElementById('endpoint-map');
+            mapDiv.innerHTML = ''; // Clear previous map content
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '400');
+
+            endpoints.forEach(endpoint => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', endpoint.x);
+                circle.setAttribute('cy', endpoint.y);
+                circle.setAttribute('r', 15);
+                circle.setAttribute('fill', endpoint.color);
+                circle.setAttribute('stroke', 'black');
+                circle.setAttribute('stroke-width', 2);
+
+                // Tooltip on hover
+                circle.addEventListener('mouseover', function() {
+                    showTooltip(endpoint.details, endpoint.x, endpoint.y);
+                });
+                circle.addEventListener('mouseout', function() {
+                    hideTooltip();
+                });
+
+                // Click to investigate
+                circle.addEventListener('click', function() {
+                    alert(`Investigating ${endpoint.id}: ${endpoint.details}`);
+                });
+
+                svg.appendChild(circle);
+
+                // Label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', endpoint.x);
+                text.setAttribute('y', endpoint.y + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '12');
+                text.setAttribute('fill', 'white');
+                text.textContent = endpoint.id;
+                svg.appendChild(text);
+            });
+
+            mapDiv.appendChild(svg);
+        }
+
+        function showTooltip(text, x, y) {
+            let tooltip = document.getElementById('tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'tooltip';
+                tooltip.style.position = 'absolute';
+                tooltip.style.background = 'black';
+                tooltip.style.color = 'white';
+                tooltip.style.padding = '5px';
+                tooltip.style.borderRadius = '4px';
+                tooltip.style.pointerEvents = 'none';
+                document.body.appendChild(tooltip);
+            }
+            tooltip.textContent = text;
+            tooltip.style.left = (x + 10) + 'px';
+            tooltip.style.top = (y - 10) + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

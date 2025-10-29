@@ -1,0 +1,29 @@
+SMLOUVA O DÍLO
+
+Smluvní strany:
+
+Objednatel: Společnost XYZ a.s.
+Sídlo: Náměstí Míru 456, Brno
+IČ: 12345678
+Zastoupený: Jan Novák, jednatel
+
+Zhotovitel: Firma ABC s.r.o.
+Sídlo: Hlavní 123, Praha 1
+IČ: 87654321
+Zastoupený: Marie Svobodová, jednatelka
+
+Předmět smlouvy:
+Zhotovitel se zavazuje vyvinout webovou aplikaci pro objednatele podle technické specifikace.
+
+Cena díla: 150 000 Kč vč. DPH
+
+Lhůta dokončení: 31.3.2023
+
+Práva a povinnosti:
+1. Zhotovitel zajistí kvalitu díla
+2. Objednatel zaplatí cenu po předání díla
+3. Objednatel má právo na záruční opravy
+
+V Praze dne 1.1.2023
+
+Podpisy:

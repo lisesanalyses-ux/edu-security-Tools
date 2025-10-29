@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Classification Organizer (FCO) - HTML Framework</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        #classifyBtn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #classifyBtn:hover {
+            background-color: #0056b3;
+        }
+        .file-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .category-dokumenty { border-left: 5px solid #28a745; }
+        .category-obrazky { border-left: 5px solid #ffc107; }
+        .category-video { border-left: 5px solid #dc3545; }
+        .category-archivy { border-left: 5px solid #17a2b8; }
+        .category-neznamy { border-left: 5px solid #6c757d; }
+        .proposed-path {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Classification Organizer (FCO)</h1>
+        <p>Samostatný přenosný nástroj pro organizaci souborů podle kategorií a data.</p>
+
+        <label for="fileInput">Vyberte soubory k třídění (podporuje výběr více souborů):</label>
+        <input type="file" id="fileInput" multiple>
+
+        <button id="classifyBtn">Třídit soubory</button>
+
+        <div id="results"></div>
+
+        <div class="summary" id="summary">
+            <h3>Souhrn třídění</h3>
+            <p id="summaryContent"></p>
+        </div>
+    </div>
+
+    <script>
+        const categories = {
+            "Dokumenty": [".pdf", ".docx", ".xlsx", ".doc", ".xls", ".txt", ".rtf"],
+            "Obrázky": [".jpg", ".png", ".gif", ".jpeg", ".bmp", ".tiff", ".webp"],
+            "Video a Audio": [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".mp3", ".wav", ".flac", ".aac", ".ogg"],
+            "Archivy a Instalátory": [".zip", ".rar", ".7z", ".tar", ".gz", ".exe", ".msi", ".dmg"],
+            "Neznámý/Ke kontrole": []
+        };
+
+        function classifyFile(file) {
+            const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            for (const [category, extensions] of Object.entries(categories)) {
+                if (extensions.includes(ext)) {
+                    return category;
+                }
+            }
+            return "Neznámý/Ke kontrole";
+        }
+
+        function generateSubfolderName(category, lastModified) {
+            const dt = new Date(lastModified);
+            const year = dt.getFullYear();
+            const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
+                               "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+            const month = monthNames[dt.getMonth()];
+            return `${category}/${year}/${month}`;
+        }
+
+        function getCategoryClass(category) {
+            const map = {
+                "Dokumenty": "category-dokumenty",
+                "Obrázky": "category-obrazky",
+                "Video a Audio": "category-video",
+                "Archivy a Instalátory": "category-archivy",
+                "Neznámý/Ke kontrole": "category-neznamy"
+            };
+            return map[category] || "category-neznamy";
+        }
+
+        document.getElementById('classifyBtn').addEventListener('click', function() {
+            const files = document.getElementById('fileInput').files;
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('summary');
+            const summaryContent = document.getElementById('summaryContent');
+
+            resultsDiv.innerHTML = '';
+            summaryDiv.style.display = 'none';
+
+            if (files.length === 0) {
+                alert('Vyberte alespoň jeden soubor.');
+                return;
+            }
+
+            let categoryCount = {};
+            let totalFiles = files.length;
+
+            for (let file of files) {
+                const category = classifyFile(file);
+                const subfolder = generateSubfolderName(category, file.lastModified);
+                const categoryClass = getCategoryClass(category);
+
+                categoryCount[category] = (categoryCount[category] || 0) + 1;
+
+                const fileItem = document.createElement('div');
+                fileItem.className = `file-item ${categoryClass}`;
+                const displayName = file.webkitRelativePath || file.name;
+                fileItem.innerHTML = `
+                    <p><strong>Soubor:</strong> ${displayName}</p>
+                    <p><strong>Kategorie:</strong> ${category}</p>
+                    <p><strong>Navrhovaná cesta:</strong> <span class="proposed-path">${subfolder}/${file.name}</span></p>
+                    <p><strong>Velikost:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+                    <p><strong>Datum modifikace:</strong> ${new Date(file.lastModified).toLocaleString()}</p>
+                `;
+                resultsDiv.appendChild(fileItem);
+            }
+
+            // Summary
+            let summaryText = `Celkem souborů: ${totalFiles}\n`;
+            for (const [cat, count] of Object.entries(categoryCount)) {
+                summaryText += `${cat}: ${count}\n`;
+            }
+            summaryContent.textContent = summaryText;
+            summaryDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+FAKTURA č. 2023/001
+
+Dodavatel: Firma ABC s.r.o.
+Adresa: Hlavní 123, Praha 1
+
+Odběratel: Společnost XYZ a.s.
+Adresa: Náměstí Míru 456, Brno
+
+Datum vystavení: 15.1.2023
+Datum splatnosti: 15.2.2023
+
+Položky:
+1. Software licence - 50 000 Kč
+2. Technická podpora - 10 000 Kč
+
+Celkem k úhradě: 60 000 Kč vč. DPH
+
+Bankovní spojení: ČSOB, č.ú. 123456789/0300

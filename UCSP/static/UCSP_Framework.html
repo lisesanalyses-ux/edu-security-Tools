@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Cyber Security Platform (UCSP) - Management Framework</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+        }
+        .tool-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+        .tool-card h3 {
+            margin-top: 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: white;
+        }
+        .status.active { background-color: green; }
+        .status.inactive { background-color: red; }
+        .status.warning { background-color: orange; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .dashboard-item {
+            flex: 1 1 300px;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .correlation-alert {
+            background-color: #ffeaa7;
+            border-left: 5px solid #d63031;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .settings-form label {
+            margin: 0.5rem 0 0.2rem 0;
+        }
+        .settings-form input, .settings-form select {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Unified Cyber Security Platform (UCSP)</h1>
+        <p>Integrated Management Framework for KSP and WSA Tools</p>
+    </header>
+    <nav>
+        <a href="#overview">Overview</a>
+        <a href="#ksp">KSP Management</a>
+        <a href="#wsa">WSA Management</a>
+        <a href="#correlation">Correlation Dashboard</a>
+        <a href="#settings">Settings</a>
+    </nav>
+    <div class="container">
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            <p>Welcome to the UCSP Management Framework. This platform integrates KSP (Kyberstráž Procesů) for Endpoint Detection & Response and WSA (Windows Security Auditor) for Configuration Audit & Remediation. Monitor, correlate, and visualize security data in real-time.</p>
+            <div class="dashboard">
+                <div class="dashboard-item">
+                    <h3>Total Endpoints</h3>
+                    <p id="total-endpoints">Loading...</p>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Active Alerts</h3>
+                    <p id="active-alerts">Loading...</p>
+                </div>
+                <div class="dashboard-item">
+                    <h3>Risk Score Average</h3>
+                    <p id="risk-average">Loading...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ksp" class="section">
+            <h2>KSP (Kyberstráž Procesů) - Endpoint Detection & Response</h2>
+            <div class="tool-card">
+                <h3>Agent Status</h3>
+                <p>Status: <span class="status active">Active</span></p>
+                <p>Last Update: <span id="ksp-last-update">Loading...</span></p>
+                <button onclick="refreshKSP()">Refresh Data</button>
+            </div>
+            <div class="tool-card">
+                <h3>Recent Events</h3>
+                <ul id="ksp-events">
+                    <li>Loading events...</li>
+                </ul>
+                <button onclick="trainModels()">Train Behavioral Models</button>
+            </div>
+            <div class="tool-card">
+                <h3>Feedback System</h3>
+                <p>Mark events as Legitimate or Attack to improve models.</p>
+                <button onclick="submitFeedback('legitimate')">Mark as Legitimate</button>
+                <button onclick="submitFeedback('attack')">Mark as Attack</button>
+            </div>
+        </section>
+
+        <section id="wsa" class="section">
+            <h2>WSA (Windows Security Auditor) - Configuration Audit & Remediation</h2>
+            <div class="tool-card">
+                <h3>Audit Status</h3>
+                <p>Status: <span class="status active">Active</span></p>
+                <p>Last Audit: <span id="wsa-last-audit">Loading...</span></p>
+                <button onclick="runAudit()">Run Full Audit</button>
+            </div>
+            <div class="tool-card">
+                <h3>Configuration Risks</h3>
+                <ul id="wsa-risks">
+                    <li>Loading risks...</li>
+                </ul>
+                <button onclick="calculateRisk()">Recalculate Risk Scores</button>
+            </div>
+            <div class="tool-card">
+                <h3>One-Click Remediation</h3>
+                <p>Select an endpoint and apply fixes.</p>
+                <select id="endpoint-select">
+                    <option>Loading...</option>
+                </select>
+                <button onclick="remediate()">Remediate Selected Endpoint</button>
+            </div>
+        </section>
+
+        <section id="correlation" class="section">
+            <h2>Correlation Dashboard</h2>
+            <p>Correlated incidents from KSP and WSA data.</p>
+            <div class="correlation-alert">
+                <h3>Critical Incident: Potential Account Compromise</h3>
+                <p><strong>WSA Detection:</strong> Weak password policy on Endpoint WS001.</p>
+                <p><strong>KSP Detection:</strong> Unusual process activity (PID: 5678, Anomaly Score: 90).</p>
+                <p><strong>Correlation:</strong> Combined risk score: 85. Recommended action: Investigate and remediate.</p>
+                <button onclick="investigateIncident()">Investigate</button>
+            </div>
+            <div class="tool-card">
+                <h3>Endpoint Risk Map</h3>
+                <p>Interactive map showing correlated risks across endpoints. Hover over points for details, click to investigate.</p>
+                <div id="endpoint-map" style="height: 400px; width: 100%; border: 1px solid #ddd;"></div>
+            </div>
+        </section>
+
+        <section id="settings" class="section">
+            <h2>Settings</h2>
+            <div class="tool-card">
+                <h3>Framework Configuration</h3>
+                <p>Configure data sources, alert thresholds, and user roles.</p>
+                <button onclick="openSettings()">Open Settings</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>Framework Configuration</h2>
+            <form class="settings-form" onsubmit="saveSettings(event)">
+                <label for="data-source">Data Source URL:</label>
+                <input type="url" id="data-source" value="https://api.ucsp.example.com" required>
+
+                <label for="alert-threshold">Alert Threshold (Risk Score):</label>
+                <input type="number" id="alert-threshold" min="0" max="100" value="70" required>
+
+                <label for="user-role">User Role:</label>
+                <select id="user-role">
+                    <option value="admin">Administrator</option>
+                    <option value="analyst">Security Analyst</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+
+                <label for="notification-email">Notification Email:</label>
+                <input type="email" id="notification-email" value="admin@company.com" required>
+
+                <button type="submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        // Fetch dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard`);
+                const data = await response.json();
+                document.getElementById('total-endpoints').textContent = data.total_endpoints;
+                document.getElementById('active-alerts').textContent = data.active_alerts;
+                document.getElementById('risk-average').textContent = data.risk_average;
+            } catch (e) {
+                console.error('Error loading dashboard:', e);
+            }
+        }
+
+        // Fetch KSP events
+        async function refreshKSP() {
+            try {
+                const response = await fetch(`${API_BASE}/ksp/events`);
+                const events = await response.json();
+                const list = document.getElementById('ksp-events');
+                list.innerHTML = '';
+                events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.textContent = event;
+                    list.appendChild(li);
+                });
+                document.getElementById('ksp-last-update').textContent = new Date().toLocaleString();
+            } catch (e) {
+                console.error('Error refreshing KSP:', e);
+            }
+        }
+
+        // Fetch WSA risks
+        async function calculateRisk() {
+            try {
+                const response = await fetch(`${API_BASE}/wsa/risks`);
+                const risks = await response.json();
+                const list = document.getElementById('wsa-risks');
+                list.innerHTML = '';
+                risks.forEach(risk => {
+                    const li = document.createElement('li');
+                    li.textContent = risk;
+                    list.appendChild(li);
+                });
+                document.getElementById('wsa-last-audit').textContent = new Date().toLocaleString();
+            } catch (e) {
+                console.error('Error calculating risk:', e);
+            }
+        }
+
+        // Load endpoints and draw map
+        async function loadEndpoints() {
+            try {
+                const response = await fetch(`${API_BASE}/endpoints`);
+                endpoints = await response.json();
+                const select = document.getElementById('endpoint-select');
+                select.innerHTML = '';
+                endpoints.forEach(ep => {
+                    const option = document.createElement('option');
+                    option.value = ep.id;
+                    option.textContent = ep.id;
+                    select.appendChild(option);
+                });
+                drawMap();
+            } catch (e) {
+                console.error('Error loading endpoints:', e);
+            }
+        }
+
+        function drawMap() {
+            const mapDiv = document.getElementById('endpoint-map');
+            mapDiv.innerHTML = ''; // Clear previous map content
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '400');
+
+            endpoints.forEach(endpoint => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', endpoint.x);
+                circle.setAttribute('cy', endpoint.y);
+                circle.setAttribute('r', 15);
+                circle.setAttribute('fill', endpoint.color);
+                circle.setAttribute('stroke', 'black');
+                circle.setAttribute('stroke-width', 2);
+                circle.style.cursor = 'pointer';
+
+                // Tooltip on hover
+                circle.addEventListener('mouseover', function() {
+                    showTooltip(endpoint.details, endpoint.x, endpoint.y);
+                });
+                circle.addEventListener('mouseout', function() {
+                    hideTooltip();
+                });
+
+                // Click to investigate
+                circle.addEventListener('click', function() {
+                    alert(`Investigating ${endpoint.id}: ${endpoint.details}`);
+                });
+
+                svg.appendChild(circle);
+
+                // Label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', endpoint.x);
+                text.setAttribute('y', endpoint.y + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '12');
+                text.setAttribute('fill', 'white');
+                text.textContent = endpoint.id;
+                svg.appendChild(text);
+            });
+
+            mapDiv.appendChild(svg);
+        }
+
+        function showTooltip(text, x, y) {
+            let tooltip = document.getElementById('tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'tooltip';
+                tooltip.style.position = 'absolute';
+                tooltip.style.background = 'black';
+                tooltip.style.color = 'white';
+                tooltip.style.padding = '5px';
+                tooltip.style.borderRadius = '4px';
+                tooltip.style.pointerEvents = 'none';
+                tooltip.style.zIndex = '10';
+                document.getElementById('endpoint-map').appendChild(tooltip);
+            }
+            tooltip.textContent = text;
+            tooltip.style.left = (x + 10) + 'px';
+            tooltip.style.top = (y - 10) + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.style.display = 'none';
+            }
+        }
+
+        async function remediate() {
+            const endpointId = document.getElementById('endpoint-select').value;
+            try {
+                const response = await fetch(`${API_BASE}/remediate/${endpointId}`, { method: 'POST' });
+                const result = await response.json();
+                alert(result.message);
+                await loadEndpoints(); // Reload data
+            } catch (e) {
+                console.error('Error remediating:', e);
+            }
+        }
+
+        async function investigateIncident() {
+            try {
+                await fetch(`${API_BASE}/investigate`, { method: 'POST' });
+                const alertDiv = document.querySelector('.correlation-alert');
+                alertDiv.style.backgroundColor = '#d4edda'; // Green background to indicate resolved
+                alertDiv.innerHTML += '<p><strong>Status:</strong> Investigated and resolved.</p>';
+                alert('Incident investigation completed. Alert marked as resolved.');
+            } catch (e) {
+                console.error('Error investigating:', e);
+            }
+        }
+
+        // Other functions
+        async function trainModels() {
+            alert('Behavioral models training initiated.');
+        }
+
+        async function submitFeedback(type) {
+            alert(`Feedback submitted: ${type}`);
+        }
+
+        async function runAudit() {
+            await calculateRisk();
+            alert('WSA audit completed.');
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').style.display = 'block';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        async function saveSettings(event) {
+            event.preventDefault();
+            // For demo, just close and alert
+            alert('Settings saved (demo)');
+            closeSettings();
+        }
+
+        let endpoints = [];
+
+        // Load initial data
+        window.onload = async function() {
+            await loadDashboard();
+            await refreshKSP();
+            await calculateRisk();
+            await loadEndpoints();
+        };
+    </script>
+</body>
+</html>

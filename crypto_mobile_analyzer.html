@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Crypto Analyzer">
+    <link rel="manifest" href="crypto-manifest.json">
+    <title>Professional Crypto Mobile Analyzer</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35;
+            --secondary-color: #F7931A;
+            --accent-color: #627EEA;
+            --danger-color: #DC3545;
+            --success-color: #28A745;
+            --dark-bg: #121212;
+            --card-bg: #1E1E1E;
+            --border-color: #333;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B3B3B3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .app-container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-online { background-color: var(--success-color); }
+
+        .market-hours {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tab {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            min-width: fit-content;
+        }
+
+        .nav-tab.active {
+            background: rgba(255,255,255,0.2);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-active {
+            display: block;
+        }
+
+        /* Cards */
+        .analysis-card, .filter-card, .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Live Data */
+        .live-data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .data-item {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .currency-pair {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .price-current {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .price-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .price-up { color: var(--success-color); }
+        .price-down { color: var(--danger-color); }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .simple-chart {
+            width: 100%;
+            height: 280px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            padding: 40px 20px 20px 20px;
+            position: relative;
+        }
+
+        .chart-bar {
+            background: linear-gradient(180deg, #FF6B35, #F7931A);
+            border-radius: 2px 2px 0 0;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            border: 1px solid #E65100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            min-height: 10px;
+            display: inline-block;
+            margin: 0 3px;
+        }
+
+        /* Crypto specific animations */
+        .crypto-pulse {
+            animation: cryptoPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes cryptoPulse {
+            0% { box-shadow: 0 0 5px var(--accent-color); }
+            50% { box-shadow: 0 0 20px var(--accent-color); }
+            100% { box-shadow: 0 0 5px var(--accent-color); }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .live-data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes grow {
+            from {
+                opacity: 0;
+                transform: scaleY(0);
+            }
+            to {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="header-row">
+                <div class="app-title">
+                    <span>₿</span>
+                    Crypto Analyzer Pro
+                </div>
+                <div class="connection-status">
+                    <div class="status-indicator status-online"></div>
+                    Online
+                </div>
+            </div>
+
+            <div class="market-hours">
+                🕐 Crypto Market: 24/7 | Aktualizace: každých 30s
+            </div>
+
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('overview')">📈 Přehled</button>
+                <button class="nav-tab" onclick="switchTab('analysis')">🔬 Analýza</button>
+                <button class="nav-tab" onclick="switchTab('predictions')">🎯 Predikce</button>
+                <button class="nav-tab" onclick="switchTab('signals')">⚡ Signály</button>
+                <button class="nav-tab" onclick="switchTab('trades')">📊 Obchodé</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Tab -->
+            <section id="overview" class="content-section content-active">
+                <div class="analysis-card">
+                    <div class="card-title">₿ Live Crypto Data</div>
+                <div class="live-data-grid">
+                        <div class="data-item">
+                            <div class="currency-pair">BTC/USD</div>
+                            <div class="price-current" id="btc-price">58923</div>
+                            <div class="price-change price-up" id="btc-change">+2.34%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">ETH/USD</div>
+                            <div class="price-current" id="eth-price">2567</div>
+                            <div class="price-change price-down" id="eth-change">-1.23%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">BNB/USD</div>
+                            <div class="price-current" id="bnb-price">542</div>
+                            <div class="price-change price-up" id="bnb-change">+1.67%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">ADA/USD</div>
+                            <div class="price-current" id="ada-price">0.5689</div>
+                            <div class="price-change price-up" id="ada-change">+0.89%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">SOL/USD</div>
+                            <div class="price-current" id="sol-price">143</div>
+                            <div class="price-change price-down" id="sol-change">-3.21%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">DOT/USD</div>
+                            <div class="price-current" id="dot-price">6.84</div>
+                            <div class="price-change price-up" id="dot-change">+2.1%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">LINK/USD</div>
+                            <div class="price-current" id="link-price">14.23</div>
+                            <div class="price-change price-down" id="link-change">-0.67%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">UNI/USD</div>
+                            <div class="price-current" id="uni-price">8.92</div>
+                            <div class="price-change price-up" id="uni-change">+1.45%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">AAVE/USD</div>
+                            <div class="price-current" id="aave-price">112</div>
+                            <div class="price-change price-up" id="aave-change">+3.78%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">AVAX/USD</div>
+                            <div class="price-current" id="avax-price">34.7</div>
+                            <div class="price-change price-down" id="avax-change">-1.92%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">MATIC/USD</div>
+                            <div class="price-current" id="matic-price">0.89</div>
+                            <div class="price-change price-up" id="matic-change">+0.45%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">SHIB/USD</div>
+                            <div class="price-current" id="shib-price">0.000021</div>
+                            <div class="price-change price-up" id="shib-change">+5.67%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">DOGE/USD</div>
+                            <div class="price-current" id="doge-price">0.1023</div>
+                            <div class="price-change price-down" id="doge-change">-2.34%</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="currency-pair">LTC/USD</div>
+                            <div class="price-current" id="ltc-price">71.2</div>
+                            <div class="price-change price-up" id="ltc-change">+0.89%</div>
+                        </div>
+                    </div>
+                    <button onclick="refreshPrices()" style="width: 100%;">🔄 Refresh Prices</button>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="card-title">🚀 Market Sentiment</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <div style="text-align: center; padding: 16px; background: rgba(40,167,69,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 8px;">🟢</div>
+                            <div style="font-size: 18px; font-weight: 700;">BUY</div>
+                            <div style="font-size: 14px; opacity: 0.7;">BTC, ETH</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: rgba(255,107,53,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 8px;">🟡</div>
+                            <div style="font-size: 18px; font-weight: 700;">HOLD</div>
+                            <div style="font-size: 14px; opacity: 0.7;">ADA, DOT</div>
+                        </div>
+                        <div style="text-align: center; padding: 16px; background: rgba(220,53,69,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 8px;">🔴</div>
+                            <div style="font-size: 18px; font-weight: 700;">SELL</div>
+                            <div style="font-size: 14px; opacity: 0.7;">SOL, LINK</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Tab -->
+            <section id="analysis" class="content-section">
+                <div class="chart-card">
+                    <div class="card-title">₿ Technická Analýza</div>
+
+                    <div class="filter-section" style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 8px 0;">
+                        <div class="filter-group">
+                            <div class="filter-label">Kryptoměna:</div>
+                            <select class="filter-select" onchange="changeChartPair(this.value)">
+                                <option value="btc">BTC/USD</option>
+                                <option value="eth">ETH/USD</option>
+                                <option value="bnb">BNB/USD</option>
+                                <option value="ada">ADA/USD</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="filter-label">Timeframe:</div>
+                            <select class="filter-select">
+                                <option value="5m">5 minut</option>
+                                <option value="15m">15 minut</option>
+                                <option value="1h">1 hodina</option>
+                                <option value="4h">4 hodiny</option>
+                                <option value="1d">1 den</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="simple-chart" id="price-chart">
+                            <!-- Dynamic chart bars will be populated by JavaScript -->
+                        </div>
+                        <div style="text-align: center; margin-top: 10px; font-size: 12px; color: var(--text-secondary);">
+                            Crypto Chart - BTC/USD (1H) | Volume: 2.3B
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="card-title">🔬 Technické Indikátory</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+                            <span style="color: var(--success-color); font-size: 16px; font-weight: 700; display: block;">☎️ +8.42</span>
+                            <span style="font-size: 12px; opacity: 0.7;">RSI(14)</span>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+                            <span style="color: var(--success-color); font-size: 16px; font-weight: 700; display: block;">📈 58923</span>
+                            <span style="font-size: 12px; opacity: 0.7;">BTC Price</span>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+                            <span style="color: var(--danger-color); font-size: 16px; font-weight: 700; display: block;">📉 81.2</span>
+                            <span style="font-size: 12px; opacity: 0.7;">CCI(20)</span>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+                            <span style="color: var(--primary-color); font-size: 16px; font-weight: 700; display: block;">🎯 23.6%</span>
+                            <span style="font-size: 12px; opacity: 0.7;">Volatility</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Predictions Tab -->
+            <section id="predictions" class="content-section">
+                <div style="background: linear-gradient(135deg, rgba(98,126,234,0.1), rgba(98,126,234,0.05)); border: 1px solid var(--accent-color); border-radius: 8px; padding: 16px; margin: 16px 0;">
+                    <div style="color: var(--accent-color); font-weight: 600; margin-bottom: 12px;">🎯 AI-driven Crypto Predikce</div>
+
+                    <div style="display: flex; justify-content: space-around; gap: 8px;">
+                        <div style="text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; flex: 1;">
+                            <div style="font-size: 20px; font-weight: 700; color: var(--success-color);">↗️ +12.3%</div>
+                            <div style="font-size: 14px;">BTC/USD - Nárůst</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Spolehlivost: 87%</div>
+                        </div>
+
+                        <div style="text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; flex: 1;">
+                            <div style="font-size: 20px; font-weight: 700; color: var(--danger-color);">↘️ -8.7%</div>
+                            <div style="font-size: 14px;">ETH/USD - Pokles</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Spolehlivost: 74%</div>
+                        </div>
+
+                        <div style="text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; flex: 1;">
+                            <div style="font-size: 20px; font-weight: 700; color: var(--accent-color);">➡️ +3.2%</div>
+                            <div style="font-size: 14px;">ADA/USD - Stabilně</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Spolehlivost: 91%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; font-size: 12px; opacity: 0.7;">
+                        <strong>Predikční algoritmus:</strong> Kombinuje on-chain analýzu, sentiment analýzu a technické indikátory.
+                        Predikce jsou aktualizovány každou hodinu.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Signals Tab -->
+            <section id="signals" class="content-section">
+                <div class="analysis-card">
+                    <div class="card-title">⚡ Crypto Trading Signály</div>
+
+                    <div style="background: rgba(40,167,69,0.1); border-left: 4px solid var(--success-color); padding: 12px; margin: 8px 0;">
+                        <strong style="color: var(--success-color);">🔥 LONG SIGNAL - BTC/USD</strong><br>
+                        <small>27.09.2025 14:35 | POV: 89% | TP: $62000 | SL: $57000</small>
+                        <div style="margin-top: 8px; font-size: 11px; color: var(--success-color);">Entry: $58923 | RSI: 62.3 | Volume: HIGH</div>
+                    </div>
+
+                    <div style="background: rgba(220,53,69,0.1); border-left: 4px solid var(--danger-color); padding: 12px; margin: 8px 0;">
+                        <strong style="color: var(--danger-color);">💥 SHORT SIGNAL - SOL/USD</strong><br>
+                        <small>27.09.2025 14:28 | POV: 76% | TP: $130 | SL: $150</small>
+                        <div style="margin-top: 8px; font-size: 11px; color: var(--danger-color);">Entry: $143 | RSI: 82.1 | Volume: HIGH</div>
+                    </div>
+
+                    <div style="background: rgba(255,107,53,0.1); border-left: 4px solid var(--accent-color); padding: 12px; margin: 8px 0;">
+                        <strong style="color: var(--accent-color);">⚡ SCALP - ADA/USD</strong><br>
+                        <small>27.09.2025 14:32 | POV: 65% | Entry zone: $0.5680-$0.5700</small>
+                        <div style="margin-top: 8px; font-size: 11px; color: var(--accent-color);">Exit target: $0.5850 | Stop: $0.5550</div>
+                    </div>
+
+                    <div style="background: linear-gradient(45deg, rgba(255,193,7,0.1), rgba(255,193,7,0.05)); border-radius: 6px; padding: 12px; margin: 16px 0;">
+                        <strong style="color: var(--primary-color);">🌟 PREMIUM Crypto Signály</strong>
+                        <p style="margin: 8px 0 0 0; font-size: 14px;">5-minutové aktualizace, úspěšnost 84%, AI-powered signals</p>
+                        <button style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 4px; margin-top: 8px;">🚀 Upgrade na PRO</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trades Tab -->
+            <section id="trades" class="content-section">
+                <div class="analysis-card">
+                    <div class="card-title">📊 Doporučené Crypto Obchody</div>
+
+                    <!-- Trade Selection -->
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-size: 14px; font-weight: 600;">Portfolio velikost:</label>
+                        <select style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-primary); padding: 4px 8px; border-radius: 4px;" onchange="recalculateTrades(this.value)">
+                            <option value="1,000">$1,000</option>
+                            <option value="5,000" selected>$5,000</option>
+                            <option value="10,000">$10,000</option>
+                            <option value="25,000">$25,000</option>
+                            <option value="50,000">$50,000</option>
+                        </select>
+                    </div>
+
+                    <div style="background: rgba(40,167,69,0.1); border: 2px solid var(--success-color); border-radius: 8px; padding: 16px; margin: 16px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="color: var(--success-color); font-weight: 700; font-size: 16px;">🔥 BTC/USD SILNÝ NÁKUP</div>
+                                <div style="font-size: 12px; opacity: 0.8; margin: 4px 0;">Technická analýza + fundamentální indikátory</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; color: var(--success-color); font-weight: 600;">Spolehlivost 89%</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Technické detaily:</strong><br>
+                            - RSI(14): 62.3 (rostoucí momentum)<br>
+                            - CCI(20): 45.8 (vysoká volatilita)<br>
+                            - MACD: +125.4 (silný býčí impuls)
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Entry cena</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">$58,923</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Volume</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">2.3B</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Risiko management:</strong><br>
+                            - Stop Loss: $57,600 (-2.1%)<br>
+                            - Target Profit: $62,450 (+6.1%)<br>
+                            - Risk vs Reward: 1:3.2
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Transakční detaily ($5,000 portfolio):</strong><br>
+                            - Celková investice: $5,000<br>
+                            - Bitcoin množství: 0.0849 BTC<br>
+                            - Fee: $12.50 (0.25%)<br>
+                            - Odhadovaný profit: ~$860<br>
+                            - Návratnost: 17.2%
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button style="flex: 1; padding: 10px; background: var(--success-color); color: white; border: none; border-radius: 6px; font-weight: 600;">📈 Koupit BTC</button>
+                            <button style="flex: 1; padding: 10px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-weight: 600;">⏰ Následovat</button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(220,53,69,0.1); border: 2px solid var(--danger-color); border-radius: 8px; padding: 16px; margin: 16px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="color: var(--danger-color); font-weight: 700; font-size: 16px;">⚠️ SOL/USD KRÁTKÝ POZICE</div>
+                                <div style="font-size: 12px; opacity: 0.8; margin: 4px 0;">Technická overbought zóna - pozor na pumpy</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; color: var(--danger-color); font-weight: 600;">Spolehlivost 67%</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Technické detaily:</strong><br>
+                            - RSI(14): 82.1 (overbought)<br>
+                            - CCI(20): -145.6 (bore bulls trap)<br>
+                            - Volume: vysoký (nedostatečná likvidita)
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Entry cena</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">$143.00</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Volume</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">0.89B</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Risiko management:</strong><br>
+                            - Stop Loss: $169.65 (+18.6%)<br>
+                            - Target Profit: $120.23 (-15.9%)<br>
+                            - Risk vs Reward: 1:0.85
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Transakční detaily ($5,000 portfolio):</strong><br>
+                            - Celková investice: $2,500<br>
+                            - Solana množství: 17.5 SOL<br>
+                            - Fee: $7.20 (0.25%)<br>
+                            - Potenciální profit: ~$160<br>
+                            - Maximální ztráta: -$240
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button style="flex: 1; padding: 10px; background: var(--danger-color); color: white; border: none; border-radius: 6px; font-weight: 600;">📉 Prodat SOL</button>
+                            <button style="flex: 1; padding: 10px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-weight: 600;">⏰ Následovat</button>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(98,126,234,0.1); border: 2px solid var(--accent-color); border-radius: 8px; padding: 16px; margin: 16px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="color: var(--accent-color); font-weight: 700; font-size: 16px;">📈 DOT/USD STABILNÍ RŮST</div>
+                                <div style="font-size: 12px; opacity: 0.8; margin: 4px 0;">Makrotrend - ecosystem expanze</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; color: var(--accent-color); font-weight: 600;">Spolehlivost 81%</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Technické detaily:</strong><br>
+                            - RSI(14): 58.7 (optimální úroveň)<br>
+                            - CCI(20): 23.4 (stabilní trend)<br>
+                            - On-chain: Network growth +45%
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Entry cena</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">$6.84</div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; opacity: 0.8;">Volume</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">0.56B</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Risiko management:</strong><br>
+                            - Stop Loss: $6.12 (-10.5%)<br>
+                            - Target Profit: $8.75 (+27.8%)<br>
+                            - Risk vs Reward: 1:2.6
+                        </div>
+
+                        <div style="margin: 12px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                            <strong style="color: var(--text-primary);">Transakční detaily ($5,000 portfolio):</strong><br>
+                            - Celková investice: $2,000<br>
+                            - Polkadot množství: 292.4 DOT<br>
+                            - Fee: $8.50 (0.20%)<br>
+                            - Odhadovaný profit: ~$440<br>
+                            - Návratnost: 22%
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button style="flex: 1; padding: 10px; background: var(--accent-color); color: white; border: none; border-radius: 6px; font-weight: 600;">💎 Koupit DOT</button>
+                            <button style="flex: 1; padding: 10px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-weight: 600;">⏰ Následovat</button>
+                        </div>
+                    </div>
+
+                    <!-- Market Timing Alert -->
+                    <div style="background: linear-gradient(45deg, rgba(255,193,7,0.1), rgba(255,193,7,0.05)); border: 2px solid #FFC107; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                        <div style="color: #FFC107; font-weight: 700; margin-bottom: 8px;">⏰ Perfektní časový timing</div>
+                        <div style="font-size: 14px; margin-bottom: 12px;">
+                            Aktuální 24hodinové okno (28.09.2025 07:45 - 29.09.2025 07:45) je ideální pro entry pozice.
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="font-size: 12px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">🏗️ Nízká volatility</span>
+                            <span style="font-size: 12px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">🎯 Dobré spready</span>
+                            <span style="font-size: 12px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">💰 Výhodné fee</span>
+                        </div>
+                    </div>
+
+                    <!-- Performance Summary -->
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 16px 0;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">📊 Portfolio výkon (posledních 30 dní)</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 16px; font-weight: 700; color: var(--success-color);">+24.8%</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Celkový výnos</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 16px; font-weight: 700; color: var(--danger-color);">-2.1%</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Max drawdown</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 16px; font-weight: 700; color: var(--accent-color);">8.7</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Profit factor</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">15</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Uspěšné obchody</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Action Button -->
+        <div class="fab" onclick="showQuickOptions()" title="Quick Actions">
+            ₿
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast" id="toast">
+            Data refreshed successfully!
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'overview';
+
+        function switchTab(tabId) {
+            // Update navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('.nav-tab[onclick*="switchTab(\'' + tabId + '\'"]').classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('content-active'));
+            document.getElementById(tabId).classList.add('content-active');
+
+            currentTab = tabId;
+        }
+
+        function refreshPrices() {
+            showToast('Aktualizace crypto dat...');
+            setTimeout(() => {
+                const cryptos = [
+                    { id: 'btc', basePrice: 58923 },
+                    { id: 'eth', basePrice: 2567 },
+                    { id: 'bnb', basePrice: 542 },
+                    { id: 'ada', basePrice: 0.5689 },
+                    { id: 'sol', basePrice: 143 },
+                    { id: 'dot', basePrice: 6.84 },
+                    { id: 'link', basePrice: 14.23 },
+                    { id: 'uni', basePrice: 8.92 },
+                    { id: 'aave', basePrice: 112 },
+                    { id: 'avax', basePrice: 34.7 },
+                    { id: 'matic', basePrice: 0.89 },
+                    { id: 'shib', basePrice: 0.000021 },
+                    { id: 'doge', basePrice: 0.1023 },
+                    { id: 'ltc', basePrice: 71.2 }
+                ];
+
+                cryptos.forEach(crypto => {
+                    const change = (Math.random() - 0.5) * crypto.basePrice * 0.015; // +/- 1.5% volatility
+                    updatePrice(crypto.id, crypto.basePrice + change);
+                });
+
+                showToast('Crypto data aktualizována ✓');
+            }, 1000);
+        }
+
+        function updatePrice(pair, newPrice) {
+            const priceEl = document.getElementById(pair + '-price');
+            if (!priceEl) return;
+
+            const changeEl = document.getElementById(pair + '-change');
+            if (!changeEl) return;
+
+            const oldPrice = parseFloat(priceEl.textContent);
+            const change = ((newPrice - oldPrice) / oldPrice * 100);
+
+            // Format price for crypto
+            if (pair === 'shib') {
+                priceEl.textContent = newPrice.toFixed(8); // Shiba has 8 decimals
+            } else if (pair === 'btc' || pair === 'eth') {
+                priceEl.textContent = Math.round(newPrice).toString(); // Round to whole numbers
+            } else if (newPrice >= 1) {
+                priceEl.textContent = newPrice.toFixed(2); // Regular crypto prices
+            } else {
+                priceEl.textContent = newPrice.toFixed(4); // Small altcoins
+            }
+
+            if (change > 0) {
+                changeEl.className = 'price-change price-up';
+                changeEl.textContent = '+' + change.toFixed(2) + '%';
+            } else {
+                changeEl.className = 'price-change price-down';
+                changeEl.textContent = change.toFixed(2) + '%';
+            }
+        }
+
+        function showQuickOptions() {
+            const fab = document.querySelector('.fab');
+
+            const existingMenu = document.getElementById('quick-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+                return;
+            }
+
+            const menu = document.createElement('div');
+            menu.id = 'quick-menu';
+            menu.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                right: 20px;
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 16px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                z-index: 2000;
+                min-width: 150px;
+            `;
+
+            const actions = [
+                { text: '🔄 Refresh Prices', action: () => { refreshPrices(); menu.remove(); } },
+                { text: '📊 Market Analysis', action: () => { showToast('Full market analysis running...'); menu.remove(); } },
+                { text: '🚨 Price Alerts', action: () => { showToast('Alerts configured!'); menu.remove(); } },
+                { text: '💾 Export Data', action: () => { showToast('Data exported to JSON'); menu.remove(); } }
+            ];
+
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = 'quick-action-btn';
+                button.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    padding: 8px 12px;
+                    background: transparent;
+                    border: none;
+                    color: var(--text-primary);
+                    text-align: left;
+                    cursor: pointer;
+                    border-bottom: 1px solid var(--border-color);
+                    font-size: 14px;
+                `;
+
+                button.textContent = action.text;
+                button.onclick = action.action;
+                button.onmouseover = () => button.style.background = 'rgba(255,255,255,0.1)';
+                button.onmouseout = () => button.style.background = 'transparent';
+
+                menu.appendChild(button);
+            });
+
+            fab.style.transform = 'rotate(45deg)';
+
+            // Close menu after 5 seconds if not clicked
+            setTimeout(() => {
+                const menuEl = document.getElementById('quick-menu');
+                if (menuEl) {
+                    menuEl.remove();
+                    fab.style.transform = 'scale(1)';
+                }
+            }, 5000);
+
+            document.body.appendChild(menu);
+
+            // Close menu on outside click
+            document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && !fab.contains(e.target)) {
+                    const menuEl = document.getElementById('quick-menu');
+                    if (menuEl) {
+                        menuEl.remove();
+                        fab.style.transform = 'scale(1)';
+                    }
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function changeChartPair(pair) {
+            const chartInfo = document.querySelector('.chart-container div:last-child');
+            if (chartInfo) {
+                const pairNames = {
+                    'btc': 'BTC/USD',
+                    'eth': 'ETH/USD',
+                    'bnb': 'BNB/USD',
+                    'ada': 'ADA/USD'
+                };
+                chartInfo.innerHTML = `Crypto Chart - ${pairNames[pair]} | Volume: ${(Math.random() * 5 + 1).toFixed(1)}B`;
+            }
+            updateChart();
+        }
+
+        function updateChart() {
+            const chartContainer = document.getElementById('price-chart');
+            if (!chartContainer) {
+                console.log('Chart container not found');
+                return;
+            }
+
+            // Generate random price data for demonstration
+            const dataPoints = [];
+            const basePrice = 58900;
+
+            for (let i = 0; i < 12; i++) {
+                const variation = (Math.random() - 0.5) * 0.02; // +/- 2% crypto volatility
+                const price = basePrice + (variation * basePrice);
+                const height = 20 + ((price - 57000) / 2000) * 160; // Scale for crypto price range
+                dataPoints.push({
+                    price: price,
+                    height: Math.max(20, Math.min(180, height))
+                });
+            }
+
+            // Clear existing bars
+            chartContainer.innerHTML = '';
+
+            // Create new chart bars
+            dataPoints.forEach((point, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = point.height + 'px';
+                bar.style.width = '25px';
+                bar.style.marginRight = '8px';
+                bar.style.background = index % 4 === 0 ? 'linear-gradient(180deg, #FF6B35, #F7931A)' :
+                                    index % 4 === 1 ? 'linear-gradient(180deg, #627EEA, #4A5CDB)' :
+                                    index % 4 === 2 ? 'linear-gradient(180deg, #00D4AA, #00BFA5)' :
+                                    'linear-gradient(180deg, #F7931A, #E69138)';
+                bar.style.display = 'inline-block';
+                bar.style.verticalAlign = 'bottom';
+                bar.title = `Price: $${point.price.toFixed(0)}` + (Math.random() > 0.5 ? ' 📈' : ' 📉');
+
+                bar.appendChild(document.createElement('div')).className = 'chart-label';
+
+                chartContainer.appendChild(bar);
+            });
+        }
+
+        // Initial chart load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateChart();
+            showToast('Crypto Analyzer Pro loaded! ₿');
+        });
+
+        // Auto refresh every 30 seconds
+        setInterval(refreshPrices, 30000);
+    </script>
+</body>
+</html>

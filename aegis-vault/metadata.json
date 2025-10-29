@@ -1,0 +1,5 @@
+{
+  "name": "Aegis Vault",
+  "description": "A cryptographic tool providing users with complete control over their digital identities and sensitive data. It leverages decentralized identities (DID) and end-to-end encryption with a zero-knowledge architecture, ensuring data is only ever decrypted on the user's device.",
+  "requestFramePermissions": []
+}
